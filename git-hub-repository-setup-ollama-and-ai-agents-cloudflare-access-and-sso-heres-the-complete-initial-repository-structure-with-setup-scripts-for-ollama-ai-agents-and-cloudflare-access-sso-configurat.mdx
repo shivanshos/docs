@@ -1,0 +1,880 @@
+Here's the complete initial repository structure with setup scripts for Ollama, AI agents, and Cloudflare Access SSO configuration.
+
+---
+
+## Repository Structure
+
+```text
+shivanshos/infrastructure/
+├── README.md
+├── docs/                          # Mintlify documentation
+│   ├── docs.json
+│   ├── favicon.svg
+│   ├── logo/
+│   │   ├── light.svg
+│   │   └── dark.svg
+│   ├── quickstart.mdx
+│   ├── architecture.mdx
+│   ├── agents/
+│   │   ├── _category_.json
+│   │   ├── cloudflare-agent.mdx
+│   │   ├── hostinger-agent.mdx
+│   │   └── ollama-agent.mdx
+│   ├── vps-setup/
+│   │   ├── _category_.json
+│   │   ├── ubuntu-vps.mdx
+│   │   ├── ollama-deployment.mdx
+│   │   └── docker-compose.mdx
+│   └── oauth-sso/
+│       ├── _category_.json
+│       ├── cloudflare-access.mdx
+│       ├── oauth-client.mdx
+│       └── policies.mdx
+├── vps/
+│   ├── ollama-setup.sh
+│   ├── docker-compose.yml
+│   ├── nginx/
+│   │   └── sites-available/
+│   │       └── vps.shivanshsethi.in
+│   └── firewall/
+│       └── ufw-rules.sh
+├── agents/
+│   ├── context/
+│   │   ├── cloudflare-context.json
+│   │   ├── hostinger-context.json
+│   │   └── ollama-context.json
+│   ├── prompts/
+│   │   ├── infrastructure-planning.txt
+│   │   ├── code-generation.txt
+│   │   └── documentation.txt
+│   └── models-config.yaml
+├── cloudflare/
+│   ├── workers/
+│   │   ├── agent-dashboard/
+│   │   │   ├── src/
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── oauth.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── wrangler.toml
+│   │   │   ├── package.json
+│   │   │   └── public/
+│   │   │       └── index.html
+│   │   └── api-gateway/
+│   │       └── src/
+│   │           └── index.ts
+│   ├── access/
+│   │   ├── access-policies.json
+│   │   └── oauth-config.json
+│   └── dns/
+│       └── dns-records.json
+├── scripts/
+│   ├── setup-ollama.sh
+│   ├── configure-cloudflare-access.sh
+│   └── deploy-workers.sh
+└── .gitignore
+```
+
+---
+
+## 1. README.md
+
+```markdown
+# ShivanshOS Infrastructure
+
+AI agent-driven infrastructure deployment for shivanshos.cloudflareaccess.com
+
+## Components
+
+- **VPS**: Hostinger KVM Ubuntu 24.04 (vps.shivanshsethi.in)
+- **AI Runtime**: Ollama + Open WebUI
+- **Documentation**: Mintlify (docs.shivanshsethi.in)
+- **Identity**: Cloudflare Access SSO (@shivanshsethi.in)
+- **Agents**: Cloudflare Workers AI + Ollama LLMs
+
+## Quick Start
+
+1. Fork this repository
+2. Configure DNS in Cloudflare
+3. Run VPS setup scripts
+4. Deploy Cloudflare Workers 
+5. Configure Access SSO
+
+See full documentation: https://docs.shivanshsethi.in
+```
+
+---
+
+## 2. VPS Setup Scripts
+
+### vps/ollama-setup.sh
+
+```bash
+#!/bin/bash
+# Ollama installation and configuration for ShivanshOS VPS
+# Source: https://ollama.com/install.sh
+
+set -e
+
+echo "=== ShivanshOS VPS Ollama Setup ==="
+
+# Update system
+apt update && apt upgrade -y
+
+# Install dependencies
+apt install -y curl git ufw docker.io docker-compose-plugin nginx certbot
+
+# Create non-root user
+if ! id "deploy" &>/dev/null; then
+    adduser --disabled-password --gecos "" deploy
+    usermod -aG sudo deploy
+fi
+
+# Install Ollama
+echo "Installing Ollama..."
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Configure Ollama to listen on all interfaces
+cat > /etc/systemd/system/ollama.service.d/override.conf << 'EOF'
+[Service]
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+Environment="OLLAMA_ORIGINS=*"
+EOF
+
+# Pull AI models for agents
+echo "Pulling AI models..."
+ollama pull llama3.2:3b
+ollama pull codestral:7b
+ollama pull qwen2.5:3b
+ollama pull mistral:7b
+
+# Enable and start Ollama
+systemctl daemon-reload
+systemctl enable ollama
+systemctl start ollama
+
+# Configure firewall
+ufw allow 22/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw allow 11434/tcp
+ufw --force enable
+
+echo "Ollama setup complete!"
+echo "API available at: http://$(hostname -I | awk '{print $1}'):11434"
+```
+
+### vps/docker-compose.yml
+
+```yaml
+version: '3.8'
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui-data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - WEBUI_AUTH=true
+      - WEBUI_NAME=ShivanshOS Agents
+      - ENABLE_OLLAMA_API=true
+    restart: unless-stopped
+    networks:
+      - ai-network
+
+  ollama-proxy:
+    image: nginx:alpine
+    container_name: ollama-proxy
+    ports:
+      - "11435:80"
+    volumes:
+      - ./nginx/ollama.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - open-webui
+    restart: unless-stopped
+    networks:
+      - ai-network
+
+volumes:
+  open-webui-data:
+
+networks:
+  ai-network:
+    driver: bridge
+```
+
+### vps/nginx/sites-available/vps.shivanshsethi.in
+
+```nginx
+server {
+    listen 80;
+    server_name vps.shivanshsethi.in;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    location /ollama/ {
+        proxy_pass http://localhost:11434/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+---
+
+## 3. Cloudflare Access & OAuth Configuration
+
+### cloudflare/access/oauth-config.json
+
+```json
+{
+  "name": "ShivanshOS Agent Dashboard",
+  "domain": "dash.shivanshsethi.in",
+  "oauth_configuration": {
+    "enabled": true,
+    "dynamic_client_registration": {
+      "allow_any_on_localhost": false,
+      "allow_any_on_loopback": false,
+      "allowed_uris": [
+        "https://dash.shivanshsethi.in/*",
+        "https://vps.shivanshsethi.in/*"
+      ]
+    },
+    "grant": {
+      "session_duration": "24h",
+      "access_token_lifetime": "15m"
+    }
+  },
+  "policies": [
+    {
+      "name": "ShivanshOS Team Access",
+      "action": "allow",
+      "requisite": [
+        {
+          "name": "email",
+          "type": "email",
+          "operator": "ends_with",
+          "value": "@shivanshsethi.in"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### cloudflare/access/access-policies.json
+
+```json
+{
+  "applications": [
+    {
+      "name": "Agent Dashboard",
+      "domain": "dash.shivanshsethi.in",
+      "session_duration": "24h",
+      "policies": [
+        {
+          "name": "Team SSO",
+          "decision": "allow",
+          "include": [
+            {
+              "email": {
+                "operator": "ends_with",
+                "value": "@shivanshsethi.in"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "VPS Dashboard",
+      "domain": "vps.shivanshsethi.in",
+      "session_duration": "24h",
+      "policies": [
+        {
+          "name": "Team SSO",
+          "decision": "allow",
+          "include": [
+            {
+              "email": {
+                "operator": "ends_with",
+                "value": "@shivanshsethi.in"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+### cloudflare/dns/dns-records.json
+
+```json
+{
+  "zone": "shivanshsethi.in",
+  "records": [
+    {
+      "type": "A",
+      "name": "vps",
+      "content": "<VPS_IP_ADDRESS>",
+      "proxied": true,
+      "ttl": 1
+    },
+    {
+      "type": "A",
+      "name": "dash",
+      "content": "<VPS_IP_ADDRESS>",
+      "proxied": true,
+      "ttl": 1
+    },
+    {
+      "type": "A",
+      "name": "docs",
+      "content": "<VPS_IP_ADDRESS>",
+      "proxied": true,
+      "ttl": 1
+    },
+    {
+      "type": "CNAME",
+      "name": "shivanshos.cloudflareaccess.com",
+      "content": "access.cloudflare.com",
+      "proxied": false,
+      "ttl": 1
+    }
+  ]
+}
+```
+
+---
+
+## 4. AI Agents Context & Prompts
+
+### agents/context/cloudflare-context.json
+
+```json
+{
+  "agent_name": "Cloudflare Infrastructure Agent",
+  "model": "llama3.2:3b",
+  "capabilities": [
+    "DNS record management",
+    "Workers deployment",
+    "Access policy configuration",
+    "OAuth client setup",
+    "R2 bucket management",
+    "D1 database provisioning"
+  ],
+  "api_endpoints": {
+    "cloudflare_api": "https://api.cloudflare.com/client/v4",
+    "workers_ai": "https://api.cloudflare.com/client/v4/accounts/{account_id}/ai"
+  },
+  "authentication": {
+    "type": "api_token",
+    "secret_name": "CLOUDFLARE_API_TOKEN",
+    "permissions": [
+      "Zone:DNS:Edit",
+      "Workers:Write",
+      "Access:Apps and Policies:Write",
+      "AI:Write"
+    ]
+  },
+  "execution_environment": "cloudflare_workers"
+}
+```
+
+### agents/context/ollama-context.json
+
+```json
+{
+  "agent_name": "Ollama Runtime Agent",
+  "model": "mistral:7b",
+  "capabilities": [
+    "LLM inference",
+    "Model pulling",
+    "API endpoint management",
+    "Performance monitoring",
+    "Container orchestration"
+  ],
+  "api_endpoints": {
+    "ollama_api": "http://vps.shivanshsethi.in:11434",
+    "open_webui": "http://vps.shivanshsethi.in:3000"
+  },
+  "models": [
+    "llama3.2:3b",
+    "codestral:7b",
+    "qwen2.5:3b",
+    "mistral:7b"
+  ],
+  "execution_environment": "vps_docker"
+}
+```
+
+### agents/prompts/infrastructure-planning.txt
+
+```text
+You are the ShivanshOS Infrastructure Planning Agent.
+
+CONTEXT:
+- Team: shivanshos
+- Domain: shivanshsethi.in
+- VPS: Hostinger KVM Ubuntu 24.04
+- Identity: Cloudflare Access SSO
+- Documentation: Mintlify
+
+TASK:
+Analyze the user's infrastructure requirements and generate a deployment plan.
+
+OUTPUT FORMAT:
+1. DNS Records needed
+2. Cloudflare Workers to deploy
+3. VPS configuration steps
+4. Access policies to create
+5. Documentation pages to generate
+
+CONSTRAINTS:
+- All subdomains must use Cloudflare proxy
+- SSO required for all @shivanshsethi.in addresses
+- Ollama must run on VPS with Docker
+- Documentation auto-syncs via Mintlify GitHub App
+```
+
+---
+
+## 5. Cloudflare Worker: Agent Dashboard
+
+### cloudflare/workers/agent-dashboard/src/index.ts
+
+```typescript
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { jwt } from 'hono/jwt';
+
+const app = new Hono();
+
+// CORS for all routes
+app.use('*', cors());
+
+// OAuth middleware
+app.use('/api/*', async (c, next) => {
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  await next();
+});
+
+// Agent configuration endpoint
+app.post('/api/agents/configure', async (c) => {
+  const config = await c.req.json();
+  
+  // Store in Cloudflare KV
+  await c.env.AGENT_CONFIG.put('infrastructure', JSON.stringify(config));
+  
+  // Trigger deployment worker
+  await c.env.DEPLOYMENT_WORKER.fetch('https://deployment.shivanshsethi.in/trigger', {
+    method: 'POST',
+    body: JSON.stringify(config)
+  });
+  
+  return c.json({ success: true, message: 'Agent configured' });
+});
+
+// OAuth callback
+app.get('/oauth/callback', async (c) => {
+  const code = c.req.query('code');
+  const state = c.req.query('state');
+  
+  // Exchange code for token
+  const tokenResponse = await fetch('https://shivanshos.cloudflareaccess.com/cdn-cgi/access/callback', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      code,
+      client_id: c.env.OAUTH_CLIENT_ID,
+      client_secret: c.env.OAUTH_CLIENT_SECRET,
+      redirect_uri: 'https://dash.shivanshsethi.in/oauth/callback'
+    })
+  });
+  
+  const tokens = await tokenResponse.json();
+  
+  // Store session
+  c.set('jwt', tokens.access_token);
+  
+  return c.redirect('/dashboard');
+});
+
+// Dashboard endpoint
+app.get('/dashboard', async (c) => {
+  const config = await c.env.AGENT_CONFIG.get('infrastructure', { type: 'json' });
+  
+  return c.json({
+    infrastructure: config,
+    ollama_status: 'active',
+    cloudflare_status: 'connected'
+  });
+});
+
+export default app;
+```
+
+### cloudflare/workers/agent-dashboard/wrangler.toml
+
+```toml
+name = "agent-dashboard"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+
+[ai]
+binding = "AI"
+
+[vars]
+OLLAMA_BASE_URL = "https://vps.shivanshsethi.in"
+DOCS_URL = "https://docs.shivanshsethi.in"
+OAUTH_CLIENT_ID = "your-oauth-client-id"
+
+[[kv_namespaces]]
+binding = "AGENT_CONFIG"
+id = "your-kv-namespace-id"
+
+[[services]]
+binding = "DEPLOYMENT_WORKER"
+service = "deployment-worker"
+
+[site]
+bucket = "./public"
+
+[[rules]]
+type = "ESModule"
+globs = ["**/*.ts"]
+```
+
+---
+
+## 6. Mintlify Documentation
+
+### docs/docs.json
+
+```json
+{
+  "name": "ShivanshOS Infrastructure",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#0092FF",
+    "light": "#E0F2FF",
+    "dark": "#0077CC"
+  },
+  "topbarLinks": [
+    {
+      "name": "Dashboard",
+      "url": "https://dash.shivanshsethi.in"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "GitHub",
+    "url": "https://github.com/shivanshos/infrastructure"
+  },
+  "anchors": [
+    {
+      "name": "Agents",
+      "icon": "robot",
+      "url": "agents"
+    },
+    {
+      "name": "VPS Setup",
+      "icon": "server",
+      "url": "vps-setup"
+    },
+    {
+      "name": "OAuth SSO",
+      "icon": "lock",
+      "url": "oauth-sso"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["quickstart", "architecture"]
+    },
+    {
+      "group": "Agents",
+      "pages": ["agents/cloudflare-agent", "agents/hostinger-agent", "agents/ollama-agent"]
+    },
+    {
+      "group": "Infrastructure",
+      "pages": ["vps-setup/ubuntu-vps", "vps-setup/ollama-deployment", "vps-setup/docker-compose"]
+    },
+    {
+      "group": "Security",
+      "pages": ["oauth-sso/cloudflare-access", "oauth-sso/oauth-client", "oauth-sso/policies"]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/shivanshos"
+  }
+}
+```
+
+### docs/quickstart.mdx
+
+````mdx
+# Quick Start
+
+Get ShivanshOS infrastructure running in 15 minutes.
+
+## Prerequisites
+
+- Cloudflare account
+- Hostinger KVM VPS (Ubuntu 24.04)
+- GitHub account
+- Domain: shivanshsethi.in
+
+## Step 1: Fork Repository
+
+```bash
+git clone https://github.com/shivanshos/infrastructure.git
+cd infrastructure
+````
+
+## Step 2: Configure DNS
+
+Update `cloudflare/dns/dns-records.json` with your VPS IP, then run:
+
+```bash
+./scripts/setup-dns.sh
+```
+
+## Step 3: VPS Setup
+
+SSH into your VPS:
+
+```bash
+ssh root@<vps-ip>
+./vps/ollama-setup.sh
+```
+
+## Step 4: Deploy Workers
+
+```bash
+cd cloudflare/workers/agent-dashboard
+npm install
+wrangler login
+wrangler deploy
+```
+
+## Step 5: Configure Cloudflare Access
+
+1. Go to Cloudflare Dashboard → Zero Trust
+2. Access controls → Applications
+3. Add application: `dash.shivanshsethi.in`
+4. Enable Managed OAuth
+5. Add policy: Email ends with `@shivanshsethi.in`
+
+## Step 6: Connect Mintlify
+
+1. Go to mintlify.com
+2. Connect GitHub repository
+3. Set docs path: `/docs`
+4. Custom domain: `docs.shivanshsethi.in`
+
+## Verification
+
+- VPS: [https://vps.shivanshsethi.in](https://vps.shivanshsethi.in) (Open WebUI)
+- Docs: [https://docs.shivanshsethi.in](https://docs.shivanshsethi.in)
+- Dashboard: [https://dash.shivanshsethi.in](https://dash.shivanshsethi.in)
+
+````text
+
+***
+
+## 7. Setup Scripts
+
+### scripts/setup-ollama.sh
+
+```bash
+#!/bin/bash
+# Complete Ollama + Open WebUI setup
+
+VPS_IP="<your-vps-ip>"
+DOMAIN="vps.shivanshsethi.in"
+
+# SSH into VPS and execute setup
+ssh root@$VPS_IP << 'EOF'
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Configure systemd override
+mkdir -p /etc/systemd/system/ollama.service.d
+cat > /etc/systemd/system/ollama.service.d/override.conf << 'OVERRIDE'
+[Service]
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+Environment="OLLAMA_ORIGINS=*"
+OVERRIDE
+
+# Pull models
+ollama pull llama3.2:3b
+ollama pull codestral:7b
+ollama pull qwen2.5:3b
+
+# Restart Ollama
+systemctl daemon-reload
+systemctl restart ollama
+
+# Install Docker
+apt install -y docker.io docker-compose-plugin
+
+# Deploy Open WebUI
+docker run -d \
+  --name open-webui \
+  -p 3000:8080 \
+  -v open-webui:/app/backend/data \
+  -e OLLAMA_BASE_URL=http://localhost:11434 \
+  --restart always \
+  ghcr.io/open-webui/open-webui:main
+
+# Configure Nginx
+apt install -y nginx certbot
+cat > /etc/nginx/sites-available/$DOMAIN << 'NGINX'
+server {
+    listen 80;
+    server_name vps.shivanshsethi.in;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+    }
+    
+    location /ollama/ {
+        proxy_pass http://localhost:11434/;
+        proxy_set_header Host \$host;
+    }
+}
+NGINX
+
+ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
+nginx -t
+systemctl reload nginx
+
+# SSL certificate
+certbot --nginx -d $DOMAIN --non-interactive --agree-tos --email admin@shivanshsethi.in
+
+echo "Setup complete!"
+EOF
+````
+
+### scripts/configure-cloudflare-access.sh
+
+```bash
+#!/bin/bash
+# Cloudflare Access & OAuth configuration
+
+CLOUDFLARE_API_TOKEN="<your-api-token>"
+ZONE_ID="<your-zone-id>"
+ACCOUNT_ID="<your-account-id>"
+
+# Create Access Application
+curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps" \
+  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "name": "ShivanshOS Agent Dashboard",
+    "domain": "dash.shivanshsethi.in",
+    "session_duration": "24h",
+    "oauth_configuration": {
+      "enabled": true,
+      "dynamic_client_registration": {
+        "allowed_uris": ["https://dash.shivanshsethi.in/*"]
+      },
+      "grant": {
+        "session_duration": "24h",
+        "access_token_lifetime": "15m"
+      }
+    }
+  }'
+
+# Create Access Policy
+curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/policies" \
+  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "name": "ShivanshOS Team SSO",
+    "application_id": "<app-id-from-previous-step>",
+    "decision": "allow",
+    "include": [
+      {
+        "email": {
+          "operator": "ends_with",
+          "value": "@shivanshsethi.in"
+        }
+      }
+    ]
+  }'
+
+echo "Cloudflare Access configured!"
+```
+
+---
+
+## 8. Deployment Commands
+
+### Execute Setup
+
+```bash
+# 1. Clone repository
+git clone https://github.com/shivanshos/infrastructure.git
+cd infrastructure
+
+# 2. Run VPS setup
+chmod +x scripts/setup-ollama.sh
+./scripts/setup-ollama.sh
+
+# 3. Configure Cloudflare Access
+chmod +x scripts/configure-cloudflare-access.sh
+./scripts/configure-cloudflare-access.sh
+
+# 4. Deploy Agent Dashboard Worker
+cd cloudflare/workers/agent-dashboard
+npm install
+wrangler deploy
+
+# 5. Initialize Mintlify
+cd docs
+mint dev  # Local preview
+# Then connect via mintlify.com dashboard
+```
+
+---
+
+## Next Steps
+
+1. **Create GitHub repository** with this structure
+2. **Update DNS records** with your VPS IP
+3. **Run setup scripts** in order
+4. **Configure OAuth secrets** in Cloudflare Workers
+5. **Connect Mintlify** to GitHub for auto-deployment
+
+All documentation will be available at **docs.shivanshsethi.in** once Mintlify is connected.[1]
+
+Sources [1] Managed OAuth · Cloudflare One docs [https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/managed-oauth/](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/managed-oauth/) [2] GitHub [https://www.mintlify.com/docs/deploy/github](https://www.mintlify.com/docs/deploy/github)

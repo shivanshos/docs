@@ -1,0 +1,99 @@
+---
+title: "📦 Project Structure"
+---
+
+```text
+shivanshos-starter/
+├── scripts/
+│   ├── install-docker.sh         # Docker Engine + Compose installer
+│   ├── install-ollama.sh         # Ollama AI server setup
+│   ├── fetch-models.sh           # Pre-configured model downloader
+│   ├── install-agents.sh         # Hermes, OpenCLAW, LangChain, vLLM
+│   └── setup-cloudflare.sh       # Cloudflare Tunnel configuration
+├── agents/
+│   ├── hermes/                   # Research & documentation agent
+│   ├── openclaw/                 # Code analysis & security agent
+│   ├── langchain/                # Workflow chains agent
+│   ├── vllm/                     # High-performance serving
+│   └── docker-compose.yaml       # Agent orchestration
+├── docs/
+│   ├── SETUP_GUIDE.md           # Complete walkthrough
+│   ├── docker.md                # Docker configuration
+│   ├── ollama.md                # Ollama setup & API
+│   ├── agents.md                # Agent configurations
+│   ├── cloudflare.md            # Tunnel setup
+│   ├── github.md                # CI/CD integration
+│   └── troubleshooting.md       # Common issues
+├── .github/workflows/
+│   └── deploy.yaml              # GitHub Actions CI/CD
+├── docker-compose.yml           # Full service orchestration
+├── .env.example                 # Environment template
+├── Makefile                     # Quick commands
+├── quickstart.sh                # Interactive installer
+├── README.md                    # Main documentation
+├── CONTRIBUTING.md              # Contribution guidelines
+└── LICENSE                      # MIT License
+```
+
+## 🚀 Quick Start
+
+```bash
+# Clone and navigate
+cd shivanshos-starter
+
+# Option 1: Interactive menu (recommended)
+chmod +x quickstart.sh
+./quickstart.sh
+
+# Option 2: Complete automated setup
+chmod +x scripts/*.sh
+./scripts/install-docker.sh
+./scripts/install-ollama.sh
+./scripts/fetch-models.sh
+./scripts/install-agents.sh
+
+# Option 3: Using Make
+make install
+```
+
+## ⚙️ Configuration
+
+Your setup includes:
+
+- **Domain:** os.shivanshsethi.in
+- **GitHub Org:** shivanshos
+- **Email:** [dev@shivanshsethi.in](mailto:dev@shivanshsethi.in)
+- **Ubuntu:** 24.04/26.04 LTS compatible
+- **AI Stack:** Ollama + LangChain + vLLM + custom agents
+
+## 🤖 Pre-configured Agents
+
+1. **Hermes** (Port 8001) - Research, documentation, code generation
+2. **OpenCLAW** (Port 8002) - Security scanning, code review
+3. **LangChain** (Port 8003) - Sequential/parallel workflow chains
+4. **vLLM** (Port 8000) - High-throughput model serving
+
+## 📚 Key Features
+
+- ✅ Docker installer with GPU support
+- ✅ Ollama with automatic model fetching (llama3.2, mistral, codellama)
+- ✅ Agent configuration templates (YAML-based)
+- ✅ Cloudflare Tunnel for secure exposure
+- ✅ GitHub Actions CI/CD pipeline
+- ✅ Comprehensive documentation (7 MD files)
+- ✅ Environment management (.env.example)
+- ✅ Make commands for common operations
+- ✅ Troubleshooting guide included
+
+## 🔗 Your Domains
+
+Once Cloudflare is configured:
+
+- [https://os.shivanshsethi.in](https://os.shivanshsethi.in) (main dashboard)
+- [https://docs.shivanshsethi.in](https://docs.shivanshsethi.in) (documentation)
+- [https://agents.shivanshsethi.in](https://agents.shivanshsethi.in) (agent APIs)
+- [https://login.shivanshsethi.in](https://login.shivanshsethi.in) (authentication)
+
+All files are ready to commit to your GitHub repository at `github.com/shivanshos/shivanshos-starter`!
+
+Sources [1] How to Install and Configure Ollama [https://oneuptime.com/blog/post/2026-02-02-ollama-installation-configuration/view](https://oneuptime.com/blog/post/2026-02-02-ollama-installation-configuration/view) [2] Installation of Ollama - Thomas-Krenn-Wiki-en [https://www.thomas-krenn.com/en/wiki/Installation_of_Ollama](https://www.thomas-krenn.com/en/wiki/Installation_of_Ollama) [3] No SSH Port Opening Required! Building a Secure CD ... [https://developer.mamezou-tech.com/en/blogs/2025/11/17/cd-pipeline-for-ubuntu-desktop/](https://developer.mamezou-tech.com/en/blogs/2025/11/17/cd-pipeline-for-ubuntu-desktop/) [4] Linux Local AI Setup: Ubuntu/Arch Install Guide 2025 [https://localaimaster.com/blog/linux-local-ai-setup](https://localaimaster.com/blog/linux-local-ai-setup) [5] How to Set Up Ollama on Your Own Server: Step-by-Step Guide ... [https://www.velsof.com/blog/setup-ollama-self-hosted-server/](https://www.velsof.com/blog/setup-ollama-self-hosted-server/) [6] How to install Ollama on Ubuntu 24.04 and Debian 12 [https://lumadock.com/tutorials/install-ollama-ubuntu](https://lumadock.com/tutorials/install-ollama-ubuntu) [7] How to Install Ollama on Ubuntu 22.04 Server for Local ... [https://cloudblast.io/article/How-to-Install-Ollama-on-Ubuntu-22.04-Server-for-Local-LLM-Deployment](https://cloudblast.io/article/How-to-Install-Ollama-on-Ubuntu-22.04-Server-for-Local-LLM-Deployment) [8] Self-Hosting a Side Project With GitHub Actions ... - Keiji Lohier [https://www.keijilohier.com/blogs/self-hosting-github-actions-cloudflare-tunnel-docker-compose/](https://www.keijilohier.com/blogs/self-hosting-github-actions-cloudflare-tunnel-docker-compose/) [9] framework-desktop-ollama-gpu.md [https://gist.github.com/micahflee/77929fa44432a5215f27fe67911126f2](https://gist.github.com/micahflee/77929fa44432a5215f27fe67911126f2) [10] How to Install Docker on Ubuntu 24.04 [https://lucaberton.com/blog/how-to-install-docker-on-ubuntu-24-04/](https://lucaberton.com/blog/how-to-install-docker-on-ubuntu-24-04/) [11] Run Your Own AI Locally: Ollama Setup Guide for Production [https://blog.canadianwebhosting.com/ollama-setup-guide-self-hosted-llm-production/](https://blog.canadianwebhosting.com/ollama-setup-guide-self-hosted-llm-production/) [12] Install Docker on Ubuntu 24.04: Engine & Compose | Raff [https://rafftechnologies.com/learn/tutorials/install-docker-ubuntu-24-04](https://rafftechnologies.com/learn/tutorials/install-docker-ubuntu-24-04) [13] Step-by-step: Setting Up A Local AI Model Server Using Ollama And ... [https://www.alibaba.com/product-insights/step-by-step-setting-up-a-local-ai-model-server-using-ollama-and-docker-on-ubuntu-24-04.html](https://www.alibaba.com/product-insights/step-by-step-setting-up-a-local-ai-model-server-using-ollama-and-docker-on-ubuntu-24-04.html) [14] Install Docker on Ubuntu 24.04 LTS: Complete Guide (2026) [https://lucaberton.com/blog/install-docker-ubuntu-2404/](https://lucaberton.com/blog/install-docker-ubuntu-2404/) [15] Install Docker on Ubuntu 24.04: The Verified Way (2026) [https://learnwithhasan.com/guide/install-docker-ubuntu/](https://learnwithhasan.com/guide/install-docker-ubuntu/) [16] How to install Docker on Ubuntu 24.04 LTS [2026] [https://www.youtube.com/watch?v=UesasPI4oCQ&vl=en](https://www.youtube.com/watch?v=UesasPI4oCQ&vl=en) [17] How to Install Docker on Ubuntu 24.04 LTS [https://www.youtube.com/watch?v=9D-HLjJeuFk](https://www.youtube.com/watch?v=9D-HLjJeuFk) [18] How To Install Docker on Ubuntu 24.04 LTS / 26.04 LTS (Linux) [https://www.youtube.com/watch?v=J4dZ2jcpiP0](https://www.youtube.com/watch?v=J4dZ2jcpiP0) [19] Install Docker on Ubuntu 24.04 — Quick Guide [https://www.youtube.com/watch?v=P46RROY4fzI](https://www.youtube.com/watch?v=P46RROY4fzI) [20] How to Install Docker on Ubuntu 24.04 LTS [https://www.youtube.com/watch?v=U-K6_16kADk](https://www.youtube.com/watch?v=U-K6_16kADk) [21] How to install Docker on Ubuntu Server 24 04 [https://www.youtube.com/watch?v=Dsb4aZrxm-g](https://www.youtube.com/watch?v=Dsb4aZrxm-g) [22] How to Install Docker Desktop on Ubuntu 24.04 [https://www.youtube.com/watch?v=AeW3dn_uiwM&vl=en](https://www.youtube.com/watch?v=AeW3dn_uiwM&vl=en) [23] Install docker and docker compose latest on Ubuntu 24.04 [https://www.youtube.com/watch?v=F6WEilocXvs](https://www.youtube.com/watch?v=F6WEilocXvs) [24] How to Install Docker Desktop on Ubuntu 24.04 LTS (2025) [https://www.youtube.com/watch?v=FWWq83IGUgw](https://www.youtube.com/watch?v=FWWq83IGUgw) [25] Ubuntu Server 24.04 Installation and Docker Install Part 1 # ... [https://www.youtube.com/watch?v=HN-UT3HxPQw](https://www.youtube.com/watch?v=HN-UT3HxPQw)

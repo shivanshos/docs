@@ -1,0 +1,313 @@
+---
+title: "ShivanshOS : Concept "
+---
+
+Based on the research and your requirements, I'll create a comprehensive concept document for Project ShivanshOS. This will serve as the foundational documentation for your defense-focused UAV R&D infrastructure.
+
+## Project ShivanshOS: Concept Document
+
+**Project ShivanshOS** is a Personal Operating System framework designed to accelerate Research & Development activities in defense-related UAV (Unmanned Aerial Vehicles) and drone technologies through AI-agentic backed infrastructure.\[1\]\[2\][3]
+
+## Executive Summary
+
+ShivanshOS establishes a zero-trust, self-hosted ecosystem that integrates high-performance compute clusters, self-hosted LLM infrastructure, and multi-agent AI systems to support defense UAV R&D.  The framework leverages Cloudflare Zero Trust for secure access, GitHub Enterprise for code management, and Ubuntu 26.04 as the foundational OS layer.\[4\]\[5\]\[6\]\[7\]\[8\]\[9\][10]
+
+## Core Architecture Pillars
+
+### 1. Identity & Access Management
+
+**Domain Structure:**
+
+- Root domain: `shivanshsethi.in` (portfolio hosting untouched)
+- Subdomains:
+  - `os.shivanshsethi.in` - Main OS portal
+  - `login.shivanshsethi.in` - Authentication gateway
+  - `dev.shivanshsethi.in` - Development environment
+  - `registry.shivanshsethi.in` - Container/model registry
+
+**Zero Trust Configuration:**
+
+- Team name: `shivanshos`
+- Team domain: `shivanshos.cloudflareaccess.com`
+- Identity providers: Okta + Auth0 (dual IdP setup)\[7\]\[8\]\[9\][11]
+- Internal identity: `*@shivanshsethi.in` email accounts
+- External identity: Outlook, Google, iCloud integration
+- Cross-domain support: `aiotize`, `aio3.ai`
+
+**SSO Configuration:**
+
+- Okta SAML integration with Cloudflare One\[8\]\[11\][12]
+- Auth0 OIDC integration for application-level SSO
+- Risk score sharing between Cloudflare and Okta for adaptive access\[12\][13]
+
+### 2. High-Performance Compute (HPC) Cluster
+
+**Infrastructure Specifications:**
+
+- OS: Ubuntu 26.04 Desktop with Landscape management\[3\]\[10\][14]
+- SSO integration via Ubuntu Pro + Cloudflare Access
+- GPU-accelerated workloads (NVIDIA CUDA/AMD ROCm)\[15\]\[16\][17]
+- Container orchestration via Docker + Kubernetes-ready
+
+**HPC Workstation Components:**
+
+- Multi-GPU setup for LLM inference
+- Fast NVMe storage for model caching
+- Network isolation via Cloudflare Zero Trust tunnels
+- iPhone access through Cloudflare One mobile client
+
+### 3. Self-Hosted LLM Studio
+
+**Inference Engines:**
+
+- **Ollama**: Rapid prototyping, CPU/GPU hybrid workloads\[3\]\[14\]\[15\]\[16\]\[18\][19]
+- **vLLM**: Production-grade throughput (9x performance gap on H100)\[1\]\[2\]\[16\]\[17\][20]
+- **Open WebUI**: Chat interface for all models\[14\][21]
+
+**Framework Stack:**
+
+- LangChain for RAG pipelines
+- CrewAI for multi-agent orchestration\[4\]\[5\][6]
+- Custom agent frameworks (Hermes, etc.)
+
+**Model Management:**
+
+- Centralized model registry at `registry.shivanshsethi.in`
+- Versioned model storage with Docker volumes
+- Quantization strategies (AWQ, FP8) for hardware optimization\[15\]\[16\][20]
+
+### 4. AI Agent Ecosystem
+
+**Supported Agents:**
+
+- Hermes Agent
+- Kimi
+- Gemini
+- Claude Code
+- GitHub Copilot
+- Custom Web UI agents
+
+**Agent Configuration:**
+
+- Monorepo structure with `AGENTS.md` workspace map[22]
+- Role-Goal-Backstory framework for CrewAI[6]
+- Tool assignment and execution tuning (`max_iter`, `max_rpm`, `max_execution_time`)[6]
+
+## GitHub Organization Structure
+
+**Account:** `shivanshsethios` **Organization:** `shivanshos` **Team:** `shivanshos-team`
+
+### Monorepo Structure
+
+```text
+shivanshos/
+├── AGENTS.md                          # Workspace map, routing rules, safety constraints [12]
+├── README.md                          # Project overview
+├── docs/                              # Mintlify documentation portal
+│   ├── concept.md                     # Concept document
+│   ├── dpr.md                         # Detailed Project Report
+│   ├── directory-structure.md         # Project directory layout
+│   ├── cloudflare-config.md           # Cloudflare DNS/Zero Trust setup
+│   ├── github-config.md               # GitHub Enterprise configuration
+│   ├── local-machine-config.md        # Ubuntu 26.04 workstation setup
+│   ├── subdomain-setup.md             # DNS and subdomain configurations
+│   ├── webhook-config.md              # Webhook URIs and triggers
+│   ├── agent-setup.md                 # Agent configuration guides
+│   └── ide-setup.md                   # IDE and monorepo configuration
+├── infrastructure/
+│   ├── terraform/                     # Cloudflare, GitHub, HPC provisioning
+│   ├── ansible/                       # Ubuntu 26.04 configuration
+│   └── kubernetes/                    # HPC cluster orchestration
+├── agents/
+│   ├── hermes/                        # Hermes agent implementation
+│   ├── crewai-agents/                 # CrewAI multi-agent systems [7][19]
+│   ├── langchain-agents/              # LangChain RAG pipelines
+│   └── custom-agents/                 # Domain-specific agents
+├── llm-studio/
+│   ├── ollama/                        # Ollama configurations [9][11][18][21][25][27]
+│   ├── vllm/                          # vLLM production inference [10][13][15][18][20]
+│   ├── models/                        # Model registry and versioning
+│   └── open-webui/                    # Open WebUI deployment [25][26]
+├── uav-research/
+│   ├── defense-uavs/                  # Defense UAV R&D projects
+│   ├── drone-frameworks/              # UAV control frameworks
+│   └── simulation/                    # UAV simulation environments
+├── identity/
+│   ├── okta/                          # Okta SAML/OIDC configuration [1][2][3][4][5]
+│   ├── auth0/                         # Auth0 integration
+│   └── cloudflare-access/             # Cloudflare Zero Trust policies [14]
+├── projects/                          # Individual project branches [7]
+│   ├── project-alpha/
+│   ├── project-beta/
+│   └── ...
+└── scripts/
+    ├── setup/                         # One-click environment setup
+    ├── backup/                        # Backup and recovery scripts
+    └── monitoring/                    # HPC cluster monitoring
+```
+
+## Documentation Portal (Mintlify)
+
+All `.md` files will be hosted on a Mintlify-powered documentation portal with the following structure:
+
+### 1. Concept Document (`concept.md`)
+
+- Executive summary
+- Architecture pillars
+- Technology stack
+- Use cases and target audience (defense UAV R&D)
+
+### 2. Detailed Project Report (`dpr.md`)
+
+- Technical specifications
+- Infrastructure requirements
+- Cost estimates
+- Timeline and milestones
+- Risk assessment
+
+### 3. Project Directory Structure (`directory-structure.md`)
+
+- Complete monorepo layout
+- File organization rationale
+- Naming conventions
+- Branch strategy (projects on separate branches)[4]
+
+### 4. Configuration Guides
+
+#### Cloudflare Configuration (`cloudflare-config.md`)
+
+- DNS host setup for `shivanshsethi.in`\[23\][24]
+- Subdomain delegation (`os`, `login`, `dev`, `registry`)
+- Zero Trust team setup (`shivanshos.cloudflareaccess.com`)
+- Access application policies
+- Tunnel configurations for HPC and iPhone access[25]
+
+#### GitHub Configuration (`github-config.md`)
+
+- GitHub Enterprise Server setup
+- Organization and team structure
+- Monorepo configuration with `AGENTS.md`[22]
+- Branch protection rules
+- CI/CD workflows
+
+#### Local Machine Configuration (`local-machine-config.md`)
+
+- Ubuntu 26.04 Desktop installation\[3\]\[10\][14]
+- Landscape management setup
+- SSO integration with Okta/Auth0
+- Docker and GPU driver installation\[3\]\[16\][17]
+- Ollama and vLLM installation scripts\[3\]\[14\]\[15\]\[16\]\[18\][19]
+
+### 5. Subdomain & DNS Setup (`subdomain-setup.md`)
+
+- Cloudflare DNS records for all subdomains\[23\][24]
+- Email routing for `*@shivanshsethi.in`[24]
+- SSL/TLS certificate management
+- CNAME, A, and MX record configurations
+
+### 6. Webhook Configuration (`webhook-config.md`)
+
+- GitHub webhook URIs for CI/CD
+- Okta/Auth0 webhook triggers
+- Cloudflare Access event webhooks
+- Agent trigger webhooks
+
+### 7. Agent Setup (`agent-setup.md`)
+
+- Hermes agent configuration
+- CrewAI role-goal-backstory setup[6]
+- LangChain RAG pipeline configuration
+- Tool assignment and execution parameters[6]
+- Safety constraints and guardrails[22]
+
+### 8. IDE Setup (`ide-setup.md`)
+
+- VS Code / JetBrains configuration for monorepo
+- AI coding agent integration (Copilot, Claude Code)
+- Linting and formatting rules
+- Debug configurations for agents
+
+## Technical Implementation Details
+
+### Ollama Installation (Ubuntu 26.04)\[3\]\[10\]\[14\][19]
+
+```bash
+# Install via shell script
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Or via Docker
+docker run -d --gpus=all \
+  -v ollama:/root/.ollama \
+  -p 127.0.0.1:11434:11434 \
+  --name ollama \
+  ollama/ollama
+
+# Configure for remote access
+sudo systemctl edit ollama
+# [Service]
+# Environment="OLLAMA_HOST=0.0.0.0:11434"
+# Environment="OLLAMA_NUM_GPU=999"
+sudo systemctl restart ollama
+```
+
+### vLLM Installation\[1\]\[16\]\[17\][20]
+
+```bash
+# Create virtual environment
+python -m venv vllm-env
+source vllm-env/bin/activate
+
+# Install vLLM with CUDA support
+pip install vllm
+
+# Launch OpenAI-compatible server
+python -m vllm.entrypoints.openai.api_server \
+  --model meta-llama/Llama-3.1-8B-Instruct \
+  --quantization awq \
+  --max-model-len 8192 \
+  --port 8000
+```
+
+### Cloudflare Zero Trust + Okta Integration\[7\]\[8\]\[9\]\[11\]\[12\][25]
+
+1. **Okta Side:**
+   - Create SAML 2.0 app integration
+   - Configure SSO URL with Cloudflare Access endpoint
+   - Set Name ID Format to `EmailAddress`
+   - Export X.509 certificate
+2. **Cloudflare Side:**
+   - Navigate to Zero Trust > Integrations > Identity providers
+   - Add SAML provider with Okta SSO URL and Issuer ID
+   - Upload signing certificate
+   - Enable risk score sharing to Okta\[12\][13]
+3. **Access Application:**
+   - Create self-hosted application for each subdomain
+   - Define policies with group/email checks
+   - Validate CF_Authorization JWT at origin
+
+## Next Steps
+
+1. **Infrastructure Provisioning:**
+   - Deploy HPC workstation with Ubuntu 26.04
+   - Configure Cloudflare DNS and Zero Trust
+   - Set up GitHub Enterprise organization
+2. **Identity Integration:**
+   - Complete Okta SAML integration
+   - Configure Auth0 OIDC for applications
+   - Set up internal `*@shivanshsethi.in` email accounts
+3. **LLM Studio Deployment:**
+   - Install Ollama and vLLM on HPC cluster
+   - Deploy Open WebUI for user interface
+   - Configure model registry at `registry.shivanshsethi.in`
+4. **Agent Framework:**
+   - Implement CrewAI multi-agent systems\[4\][6]
+   - Set up LangChain RAG pipelines
+   - Configure Hermes and other agents
+5. **Documentation Portal:**
+   - Deploy Mintlify with all `.md` files
+   - Configure subdomains for documentation
+   - Set up webhooks for automated updates
+
+This framework provides the foundation for accelerating defense UAV R&D through AI-agentic infrastructure, ensuring stakeholder interests are exceeded with a production-ready, zero-trust, self-hosted ecosystem.\[1\]\[2\]\[3\]\[4\]\[5\][6]
+
+Sources [1] Build a Home AI Server in 2026: Self-Hosted LLM Guide [https://www.digitalapplied.com/blog/home-ai-server-build-self-hosted-llm-2026-guide](https://www.digitalapplied.com/blog/home-ai-server-build-self-hosted-llm-2026-guide) [2] LLM Hosting in 2026: Local, Self-Hosted and Cloud Infrastructure ... [https://www.glukhov.org/llm-hosting/](https://www.glukhov.org/llm-hosting/) [3] Running Local LLMs on Ubuntu 26.04 | DevOps AI Toolkit [https://devopsaitoolkit.com/ubuntu-ai/running-local-llms-ubuntu-26-04/](https://devopsaitoolkit.com/ubuntu-ai/running-local-llms-ubuntu-26-04/) [4] Agentic AI Projects - Monorepo [https://github.com/CodeBy-HP/agentic-ai-projects](https://github.com/CodeBy-HP/agentic-ai-projects) [5] Tech Stack [https://github.com/aws-samples/sample-agentic-ai-platform-with-agentcore](https://github.com/aws-samples/sample-agentic-ai-platform-with-agentcore) [6] crewAIInc/skills [https://github.com/crewaiinc/skills](https://github.com/crewaiinc/skills) [7] Integrate Cloudflare One with Okta [https://www.okta.com/integrations/cloudflare-one/](https://www.okta.com/integrations/cloudflare-one/) [8] Okta (SAML) · Cloudflare One docs [https://developers.cloudflare.com/cloudflare-one/integrations/identity-providers/okta-saml/](https://developers.cloudflare.com/cloudflare-one/integrations/identity-providers/okta-saml/) [9] Okta - Cloudflare One [https://developers.cloudflare.com/cloudflare-one/integrations/identity-providers/okta/](https://developers.cloudflare.com/cloudflare-one/integrations/identity-providers/okta/) [10] Local LLMs - Ubuntu.Fan [https://ubuntu.fan/en/docs/ai/local-llm](https://ubuntu.fan/en/docs/ai/local-llm) [11] Set up dashboard SSO · Cloudflare Fundamentals docs [https://developers.cloudflare.com/fundamentals/manage-members/dashboard-sso/](https://developers.cloudflare.com/fundamentals/manage-members/dashboard-sso/) [12] User risk score · Cloudflare One docs [https://developers.cloudflare.com/cloudflare-one/team-and-resources/users/risk-score/](https://developers.cloudflare.com/cloudflare-one/team-and-resources/users/risk-score/) [13] Risk Score Changelog | Cloudflare Docs [https://developers.cloudflare.com/changelog/product/risk-score/](https://developers.cloudflare.com/changelog/product/risk-score/) [14] Install Ollama on Ubuntu 26.04 LTS (Open WebUI) [https://computingforgeeks.com/install-ollama-ubuntu-2604/](https://computingforgeeks.com/install-ollama-ubuntu-2604/) [15] vLLM vs Ollama 2026: 9x Throughput Gap, 172K Stars [Tested] [https://tech-insider.org/vllm-vs-ollama-2026/](https://tech-insider.org/vllm-vs-ollama-2026/) [16] Guide to Local LLMs in 2026: Privacy, Tools & Hardware - SitePoint [https://www.sitepoint.com/definitive-guide-local-llms-2026-privacy-tools-hardware/](https://www.sitepoint.com/definitive-guide-local-llms-2026-privacy-tools-hardware/) [17] vLLM, Ollama, LM Studio, llama.cpp: Choosing the best LLM ... [https://bizon-tech.com/blog/best-llm-inference-engines](https://bizon-tech.com/blog/best-llm-inference-engines) [18] Running LLMs Locally in 2026: Ollama, llama.cpp, and Self ... [https://daily.dev/blog/running-llms-locally-ollama-llama-cpp-self-hosted-ai-developers/](https://daily.dev/blog/running-llms-locally-ollama-llama-cpp-self-hosted-ai-developers/) [19] Self-Hosted LLM Guide 2026: Run AI Locally for Privacy & Savings [https://sanj.dev/post/self-hosted-llm-guide-2026/](https://sanj.dev/post/self-hosted-llm-guide-2026/) [20] Ollama vs vLLM: Choosing a Self-Hosted LLM Inference Server (2026) [https://use-apify.com/blog/ollama-vs-vllm-2026](https://use-apify.com/blog/ollama-vs-vllm-2026) [21] Ultimate Local AI Setup Guide: Ubuntu, Ollama, & Open WebUI [https://www.youtube.com/watch?v=sA5g9OW-yXU](https://www.youtube.com/watch?v=sA5g9OW-yXU) [22] AI agents in monorepos: what to configure differently from a ... [https://www.d4b.dev/blog/2026-04-03-ai-agents-in-monorepos-what-to-configure-differently-from-a-single-product-repo](https://www.d4b.dev/blog/2026-04-03-ai-agents-in-monorepos-what-to-configure-differently-from-a-single-product-repo) [23] FAQ · Cloudflare DNS docs [https://developers.cloudflare.com/dns/faq/](https://developers.cloudflare.com/dns/faq/) [24] Subdomains · Cloudflare Email Service docs [https://developers.cloudflare.com/email-service/configuration/subdomains/](https://developers.cloudflare.com/email-service/configuration/subdomains/) [25] Cloudflare Access: SSO-gate internal applications [https://stackharbor.com/en/knowledge-base/cf-access-sso-gate-applications/](https://stackharbor.com/en/knowledge-base/cf-access-sso-gate-applications/) [26] Self-Hosted AI on Linux: A DevOps Home Lab Guide [https://dev.to/akshaygore/self-hosted-ai-on-linux-a-devops-home-lab-guide-28kc](https://dev.to/akshaygore/self-hosted-ai-on-linux-a-devops-home-lab-guide-28kc) [27] vLlama: Ollama + vLLM: Hybrid Local Inference Server [https://www.youtube.com/watch?v=uDI_5xlhKWE](https://www.youtube.com/watch?v=uDI_5xlhKWE) [28] Build Your Own AI Server with Ollama — Run Free LLM Models Locally (2026 Setup Guide) [https://www.youtube.com/watch?v=iNdyW7bnCzU](https://www.youtube.com/watch?v=iNdyW7bnCzU)

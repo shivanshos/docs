@@ -1,0 +1,429 @@
+## Overview
+
+Here's a complete plan to fabricate the **ShivanshOS infrastructure** using **Cloudflare, GitHub, Ubuntu VPS (Hostinger), Ollama-powered AI agents, and Mintlify documentation**. This setup creates an agent-driven infrastructure deployment system where AI agents (powered by Ollama) generate context and execute deployment tasks across your stack.\[1\]\[2\][3]
+
+---
+
+## Architecture Components
+
+| Component | Purpose | Technology |
+| --- | --- | --- |
+| **VPS Host** | Self-hosted AI agents, Ollama, Open WebUI | Hostinger KVM Ubuntu 24.04 |
+| **DNS & Edge** | DNS management, Workers, Access SSO | Cloudflare |
+| **Documentation** | Technical docs for agents & infrastructure | Mintlify (docs.shivanshsethi.in) |
+| **Code Repository** | Infrastructure as code, agent context | GitHub (shivanshos) |
+| **AI Runtime** | Local LLM inference for agents | Ollama + Workers AI |
+| **Identity** | SSO for all @shivanshsethi.in addresses | Cloudflare Access + OAuth |
+| **Agent Dashboard** | User input collection for configuration | Cloudflare Pages/Workers |
+
+---
+
+## Phase 1: Pre-requisites & Foundation Setup
+
+### 1.1 Domain & DNS Configuration
+
+**Cloudflare DNS Setup for shivanshsethi.in:**
+
+1. Add `shivanshsethi.in` to Cloudflare (if not already)
+2. Configure these DNS records pointing to your Hostinger VPS IP:
+   - `vps.shivanshsethi.in` → A record → VPS IP (Proxy: orange cloud)
+   - `docs.shivanshsethi.in` → A record → VPS IP (Proxy: orange cloud)
+   - `dash.shivanshsethi.in` → A record → VPS IP (Proxy: orange cloud)
+   - `@` (root) → A record → VPS IP (optional, or keep on Hostinger)\[4\][5]
+3. In Hostinger hPanel, note your VPS public IPv4 address for DNS records[5]
+
+### 1.2 GitHub Repository Structure
+
+Create a new repository: **github.com/shivanshos/infrastructure**
+
+```text
+infrastructure/
+├── docs/                    # Mintlify documentation source
+│   ├── docs.json
+│   ├── quickstart.mdx
+│   ├── agents/
+│   ├── vps-setup/
+│   └── oauth-sso/
+├── agents/                  # Agent definitions & context
+│   ├── cloudflare-agent/
+│   ├── hostinger-agent/
+│   ├── ollama-agent/
+│   └── context/
+├── workers/                 # Cloudflare Workers code
+│   ├── agent-dashboard/
+│   └── api-gateway/
+├── vps/                     # VPS configuration scripts
+│   ├── docker-compose.yml
+│   ├── ollama-setup.sh
+│   └── nginx-config/
+└── README.md
+```
+
+---
+
+## Phase 2: VPS Setup (Hostinger KVM Ubuntu)
+
+### 2.1 Initial Server Configuration
+
+SSH into your VPS (`ssh root@vps.shivanshsethi.in` or IP):
+
+```bash
+# Update system
+apt update && apt upgrade -y
+
+# Create non-root user
+adduser deploy
+usermod -aG sudo deploy
+
+# Install essential tools
+apt install -y curl git ufw docker.io docker-compose-plugin nginx certbot python3-pip
+```
+
+### 2.2 Ollama Installation (AI Agent Runtime)
+
+Install Ollama for self-hosted LLM inference:\[3\]\[6\][7]
+
+```bash
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Start and enable service
+systemctl start ollama
+systemctl enable ollama
+
+# Configure Ollama to listen on all interfaces
+systemctl edit ollama
+```
+
+Add to the `[Service]` section:
+
+```ini
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+```
+
+Then reload:
+
+```bash
+systemctl daemon-reload
+systemctl restart ollama
+```
+
+### 2.3 Pull AI Models for Agents
+
+```bash
+# Infrastructure planning agent
+ollama pull llama3.2:3b
+
+# Code generation agent
+ollama pull codestral:7b
+
+# Documentation agent
+ollama pull qwen2.5:3b
+
+# General assistant
+ollama pull mistral:7b
+```
+
+### 2.4 Open WebUI (Agent Dashboard Interface)
+
+Deploy Open WebUI as the agent interaction layer:\[8\][9]
+
+```bash
+docker run -d \
+  --name open-webui \
+  -p 3000:8080 \
+  -v open-webui:/app/backend/data \
+  -e OLLAMA_BASE_URL=http://localhost:11434 \
+  --restart always \
+  ghcr.io/open-webui/open-webui:main
+```
+
+Access at `http://vps.shivanshsethi.in:3000`
+
+### 2.5 Nginx Reverse Proxy with HTTPS
+
+Configure Nginx for `vps.shivanshsethi.in`:
+
+```nginx
+# /etc/nginx/sites-available/vps.shivanshsethi.in
+server {
+    listen 80;
+    server_name vps.shivanshsethi.in;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Enable SSL with Let's Encrypt:
+
+```bash
+ln -s /etc/nginx/sites-available/vps.shivanshsethi.in /etc/nginx/sites-enabled/
+nginx -t
+systemctl reload nginx
+certbot --nginx -d vps.shivanshsethi.in
+```
+
+---
+
+## Phase 3: Cloudflare Access & OAuth SSO Setup
+
+### 3.1 Cloudflare Zero Trust Configuration
+
+1. Go to **Cloudflare Dashboard** → **Zero Trust**
+2. Navigate to **Access controls** → **Applications**
+3. Add self-hosted application for `dash.shivanshsethi.in`
+
+### 3.2 Enable Managed OAuth
+
+For SSO across all `@shivanshsethi.in` addresses:[10]
+
+1. In the application's **Advanced settings** tab:
+   - Enable **Managed OAuth**
+   - Set **Allowed redirect URIs**: `https://dash.shivanshsethi.in/*`
+   - Configure **Grant session duration**: 24 hours
+   - Set **Access token lifetime**: 15 minutes
+2. Create OAuth client credentials:
+   - Note **Client ID** and **Client Secret**
+   - Store as Cloudflare Worker secrets
+
+### 3.3 Access Policies
+
+Create policy to allow only `@shivanshsethi.in` emails:
+
+- **Policy name**: ShivanshOS Team Access
+- **Rule**: `Email Ends With` → `@shivanshsethi.in`
+- **Action**: Allow
+
+---
+
+## Phase 4: Mintlify Documentation Setup
+
+### 4.1 Initialize Documentation Repository
+
+From the GitHub repo structure above, initialize Mintlify:\[11\]\[12\][13]
+
+```bash
+# In docs/ directory
+npm i -g mintlify
+
+# Initialize docs.json
+cat > docs.json << 'EOF'
+{
+  "name": "ShivanshOS Infrastructure",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#0092FF",
+    "light": "#E0F2FF",
+    "dark": "#0077CC"
+  },
+  "topbarLinks": [
+    {
+      "name": "Dashboard",
+      "url": "https://dash.shivanshsethi.in"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "GitHub",
+    "url": "https://github.com/shivanshos/infrastructure"
+  },
+  "anchors": [
+    {
+      "name": "Agents",
+      "icon": "robot",
+      "url": "agents"
+    },
+    {
+      "name": "VPS Setup",
+      "icon": "server",
+      "url": "vps-setup"
+    },
+    {
+      "name": "OAuth SSO",
+      "icon": "lock",
+      "url": "oauth-sso"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["quickstart", "architecture"]
+    },
+    {
+      "group": "Agents",
+      "pages": ["agents/cloudflare-agent", "agents/hostinger-agent", "agents/ollama-agent"]
+    },
+    {
+      "group": "Infrastructure",
+      "pages": ["vps-setup/ubuntu-vps", "vps-setup/ollama-deployment", "vps-setup/docker-compose"]
+    },
+    {
+      "group": "Security",
+      "pages": ["oauth-sso/cloudflare-access", "oauth-sso/oauth-client", "oauth-sso/policies"]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/shivanshos"
+  }
+}
+EOF
+```
+
+### 4.2 Connect to Mintlify
+
+1. Go to **mintlify.com** → Sign up/Login
+2. Create new project → Connect GitHub repository `shivanshos/infrastructure`
+3. Set docs path to `/docs`
+4. Install **Mintlify GitHub App** for automatic deployments\[14\][15]
+
+### 4.3 Deploy Documentation
+
+In Mintlify dashboard:
+
+- Set production branch: `main`
+- Custom domain: `docs.shivanshsethi.in`
+- Enable preview deployments for PRs
+
+---
+
+## Phase 5: Cloudflare Workers AI Agent Dashboard
+
+### 5.1 Create Agent Dashboard Worker
+
+Initialize Cloudflare Workers project:\[2\]\[16\][17]
+
+```bash
+npm create cloudflare@latest -- agent-dashboard
+cd agent-dashboard
+npm install agents @cloudflare/ai-chat ai workers-ai-provider zod
+```
+
+### 5.2 Worker Configuration (wrangler.toml)
+
+```toml
+name = "agent-dashboard"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+
+[ai]
+binding = "AI"
+
+[vars]
+OLLAMA_BASE_URL = "https://vps.shivanshsethi.in"
+DOCS_URL = "https://docs.shivanshsethi.in"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "agent-dashboard-db"
+
+[site]
+bucket = "./public"
+```
+
+### 5.3 Agent Dashboard Code Structure
+
+Create input forms for:
+
+- Cloudflare API token
+- Hostinger VPS credentials
+- Domain names
+- OAuth client secrets
+- Agent model selection
+
+The dashboard collects these inputs and stores them securely in Cloudflare Secrets/KV, then triggers deployment agents.
+
+### 5.4 Deploy Worker
+
+```bash
+wrangler login
+wrangler deploy
+```
+
+---
+
+## Phase 6: AI Agents for Infrastructure Fabrication
+
+### 6.1 Agent Context Generation
+
+Each agent receives context from chat conversations to execute specific tasks:
+
+**Cloudflare Agent Context:**
+
+- DNS record creation
+- Workers deployment
+- Access policy configuration
+- OAuth client setup
+
+**Hostinger Agent Context:**
+
+- VPS provisioning verification
+- SSH key management
+- Firewall rules
+- Resource monitoring
+
+**Ollama Agent Context:**
+
+- Model pulling
+- API endpoint configuration
+- Performance tuning
+- Container orchestration
+
+### 6.2 Agent Execution Flow
+
+1. User inputs configuration via Agent Dashboard
+2. Dashboard stores inputs in Cloudflare KV/Secrets
+3. Trigger Cloudflare Worker to call Ollama API on VPS
+4. Ollama generates infrastructure code (Terraform, bash, etc.)
+5. Agents execute via Workers + VPS SSH/API calls
+6. Progress logged to Mintlify docs automatically
+
+---
+
+## Phase 7: Complete Setup Instructions
+
+### Quick Start Checklist
+
+1. **DNS**: Point subdomains to VPS IP in Cloudflare[4]
+2. **VPS**: Install Ollama, Docker, Nginx on Ubuntu\[3\][7]
+3. **Models**: Pull required LLMs via `ollama pull`[6]
+4. **Open WebUI**: Deploy container for agent interface[9]
+5. **Cloudflare Access**: Configure SSO for @shivanshsethi.in[10]
+6. **OAuth**: Enable Managed OAuth on dash.shivanshsethi.in application
+7. **Mintlify**: Connect GitHub repo, deploy docs to docs.shivanshsethi.in\[12\][15]
+8. **Workers**: Deploy agent-dashboard Worker with AI bindings\[16\][17]
+9. **Agents**: Configure context in `/agents/context/` directory
+10. **Test**: Access dash.shivanshsethi.in → input config → trigger deployment
+
+### Security Hardening
+
+- Enable UFW firewall on VPS: `ufw allow 22,80,443,11434`
+- Use Cloudflare Access for all admin interfaces
+- Store secrets in Cloudflare Secrets Manager
+- Enable 2FA on GitHub, Cloudflare, Hostinger accounts
+- Regular Ollama model updates: `ollama pull --force <model>`
+
+---
+
+## Next Steps
+
+1. Create the GitHub repository with the structure above
+2. Execute VPS setup commands in order
+3. Configure Cloudflare Access policies
+4. Deploy Mintlify documentation
+5. Build the Agent Dashboard Worker
+6. Test end-to-end agent execution
+
+All documentation will be auto-synced to **docs.shivanshsethi.in** via Mintlify GitHub integration.\[14\][18]
+
+Would you like me to create the initial GitHub repository structure or provide specific code for any component?
+
+Sources [1] Set up Claude Managed Agents [https://developers.cloudflare.com/sandbox/tutorials/claude-managed-agents/](https://developers.cloudflare.com/sandbox/tutorials/claude-managed-agents/) [2] How to Deploy AI Agents on Cloudflare Workers - 1mn.ai [https://1mn.ai/blog/how-to-deploy-ai-agents-on-cloudflare-workers](https://1mn.ai/blog/how-to-deploy-ai-agents-on-cloudflare-workers) [3] How to Deploy Ollama on a VPS · SelfHost Atlas [https://selfhostatlas.com/deploy/deploy-ollama-on-a-vps](https://selfhostatlas.com/deploy/deploy-ollama-on-a-vps) [4] How to Point a Domain Name to VPS - Hostinger [https://www.hostinger.com/tutorials/how-to-point-domain-to-vps/](https://www.hostinger.com/tutorials/how-to-point-domain-to-vps/) [5] Quickstart - GitHub Docs [https://github-docs-43.mintlify.app/quickstart](https://github-docs-43.mintlify.app/quickstart) [6] Deploy Local LLMs on VPS: Complete Ollama Guide for Llama / Codestral / Qwen [https://selfvps.net/en/post/deploy-local-llms-on-vps-complete-ollama-guide-for-llama-/-codestral-/-qwen/](https://selfvps.net/en/post/deploy-local-llms-on-vps-complete-ollama-guide-for-llama-/-codestral-/-qwen/) [7] How to Self-Host ChatGPT-like AI with Ollama on a VPS [https://blog.racknerd.com/how-to-self-host-chatgpt-like-ai-with-ollama-on-a-vps/](https://blog.racknerd.com/how-to-self-host-chatgpt-like-ai-with-ollama-on-a-vps/) [8] Ollama + Open WebUI Self-Hosting Guide 2026 — Run Your Own AI ... [https://dev.to/jangwook_kim_e31e7291ad98/ollama-open-webui-self-hosting-guide-2026-run-your-own-ai-for-0-2781](https://dev.to/jangwook_kim_e31e7291ad98/ollama-open-webui-self-hosting-guide-2026-run-your-own-ai-for-0-2781) [9] How to Self-Host an AI Chatbot on a Cheap VPS with Ollama and Open WebUI - Sandip Ghimire [https://gsandip.com.np/how-to-self-host-an-ai-chatbot-on-a-cheap-vps-with-ollama-and-open-webui/](https://gsandip.com.np/how-to-self-host-an-ai-chatbot-on-a-cheap-vps-with-ollama-and-open-webui/) [10] Managed OAuth · Cloudflare One docs [https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/managed-oauth/](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/managed-oauth/) [11] mintlify-docs/quickstart.mdx at main - GitHub [https://github.com/nteract/mintlify-docs/blob/main/quickstart.mdx](https://github.com/nteract/mintlify-docs/blob/main/quickstart.mdx) [12] Quickstart - Mintlify [https://mintlify.mintlify.dev/docs/quickstart](https://mintlify.mintlify.dev/docs/quickstart) [13] Quickstart - docs [https://hm-95ec977f.mintlify.app/docs-2/default/get-started/quickstart](https://hm-95ec977f.mintlify.app/docs-2/default/get-started/quickstart) [14] GitHub [https://www.mintlify.com/docs/es/deploy/github](https://www.mintlify.com/docs/es/deploy/github) [15] GitHub - Mintlify [https://www.mintlify.com/docs/deploy/github](https://www.mintlify.com/docs/deploy/github) [16] Agents SDK · Cloudflare AI Search docs [https://developers.cloudflare.com/ai-search/agent-sdks/agents-sdk/](https://developers.cloudflare.com/ai-search/agent-sdks/agents-sdk/) [17] Deploy AI Agents on Cloudflare Workers in 20 Minutes [https://markaicode.com/deploy-ai-agents-cloudflare-workers/](https://markaicode.com/deploy-ai-agents-cloudflare-workers/) [18] Create developer documentation - Mintlify [https://www.mintlify.com/docs/guides/developer-documentation](https://www.mintlify.com/docs/guides/developer-documentation) [19] Build an AI coding agent with OpenAI Agents SDK [https://developers.cloudflare.com/sandbox/tutorials/openai-agents/](https://developers.cloudflare.com/sandbox/tutorials/openai-agents/) [20] mintlify/mintlify-docs - GitHub [https://github.com/mintlify/mintlify-docs](https://github.com/mintlify/mintlify-docs) [21] Inicio rápido [https://www.mintlify.com/docs/es/quickstart](https://www.mintlify.com/docs/es/quickstart) [22] README.md - Mintlify Starter Kit [https://github.com/mintlify/mintlify-starter/blob/main/README.md](https://github.com/mintlify/mintlify-starter/blob/main/README.md) [23] l3mpire/mintlify: mintlify lemlist repo [https://github.com/l3mpire/mintlify](https://github.com/l3mpire/mintlify) [24] The complete Mintlify documentation migration guide for ... [https://hackmamba.io/technical-documentation/mintlify-documentation-migration-guide/](https://hackmamba.io/technical-documentation/mintlify-documentation-migration-guide/) [25] Running AI Agents on Cloudflare: Workers, Workflows, and Durable Objects [https://dev.to/alex_chernysh/running-ai-agents-on-cloudflare-workers-workflows-and-durable-objects-fl](https://dev.to/alex_chernysh/running-ai-agents-on-cloudflare-workers-workflows-and-durable-objects-fl) [26] How to Host Ollama on a VPS (OpenAI-Compatible API Guide) [https://www.bluehost.com/blog/deploy-ollama-api-on-vps/](https://www.bluehost.com/blog/deploy-ollama-api-on-vps/) [27] Self-Hosted AI on Linux: A DevOps Home Lab Guide [https://dev.to/akshaygore/self-hosted-ai-on-linux-a-devops-home-lab-guide-28kc](https://dev.to/akshaygore/self-hosted-ai-on-linux-a-devops-home-lab-guide-28kc) [28] Setting Up Ollama on a VPS to Run Local LLMs Without a GPU [https://compacthost.com/tutorials/setting-up-ollama-on-a-vps-to-run-local-llms-without-a-gpu/](https://compacthost.com/tutorials/setting-up-ollama-on-a-vps-to-run-local-llms-without-a-gpu/) [29] How to Host Your Own AI Model on a VPS: Running Ollama and Open-Source LLMs - VPS.DO [https://vps.do/how-to-host-your-own-ai-model-on-a-vps-running-ollama-and-open-source-llms/](https://vps.do/how-to-host-your-own-ai-model-on-a-vps-running-ollama-and-open-source-llms/) [30] Setting Up Ollama on a VPS: Running Local LLMs in the Cloud [https://compacthost.com/tutorials/setting-up-ollama-on-a-vps-running-local-llms-in-the-cloud/](https://compacthost.com/tutorials/setting-up-ollama-on-a-vps-running-local-llms-in-the-cloud/) [31] How to Run a Local LLM on a VPS: Deploy Ollama and Open ... [https://vps.do/how-to-run-a-local-llm-on-a-vps-deploy-ollama-and-open-source-ai-models/](https://vps.do/how-to-run-a-local-llm-on-a-vps-deploy-ollama-and-open-source-ai-models/) [32] How to Host Ollama on VPS: Step-by-Step Deployment ... [https://www.bluehost.com/blog/host-ollama-on-vps/](https://www.bluehost.com/blog/host-ollama-on-vps/) [33] Run Ollama on a VPS: Self-Host Local LLMs in Europe ... [https://danubedata.ro/blog/run-ollama-vps-self-host-llm-2026](https://danubedata.ro/blog/run-ollama-vps-self-host-llm-2026) [34] Best VPS Specs for Running Ollama and Local LLMs - Voxfor [https://www.voxfor.com/best-vps-specs-running-ollama-local-llms/](https://www.voxfor.com/best-vps-specs-running-ollama-local-llms/) [35] Installing Ollama on VPS Ubuntu - Run Private AI in 15 ... [https://azdigi.com/en/blog/kien-thuc-vps/installing-ollama-on-vps-ubuntu-run-private-ai-in-15-minutes](https://azdigi.com/en/blog/kien-thuc-vps/installing-ollama-on-vps-ubuntu-run-private-ai-in-15-minutes) [36] Hostinger CDN vs Cloudflare [https://www.hostinger.com/support/hostinger-cdn-vs-cloudflare/](https://www.hostinger.com/support/hostinger-cdn-vs-cloudflare/) [37] Quickstart - Upptime - Mintlify [https://www.mintlify.com/upptime/upptime/quickstart](https://www.mintlify.com/upptime/upptime/quickstart) [38] How To Use a Custom Domain To Open n8n (Cloudflare Setup) [https://www.mikemurphy.co/vpscloudflare/](https://www.mikemurphy.co/vpscloudflare/)
