@@ -10,21 +10,9 @@
   "favicon": "/favicon.svg",
   "navigation": {
     "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "quickstart"
-        ]
-      },
       "shivansh-os-concept",
       "untitled-page",
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
+      "quickstart"
     ],
     "global": {
       "anchors": [
@@ -72,9 +60,9 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/shivanshsethi13",
+      "linkedin": "https://linkedin.com/company/mintlify",
+      "website": "https://shivanshsethi.in/"
     }
   }
 }
