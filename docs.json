@@ -1,50 +1,96 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "shivanshos-docs",
+  "name": "ShivanshOS | Identity & Resource Documentation",
+  "description": "Canonical public directory for Shivansh Sethi, ShivanshOS, developer profiles, projects, credentials, research and media.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#16765E",
+    "light": "#A8F9BA",
+    "dark": "#145C4B"
   },
   "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      "shivansh-os-concept",
-      "untitled-page",
-      "quickstart",
-      "git-hub-repository-setup-ollama-and-ai-agents-cloudflare-access-and-sso-heres-the-complete-initial-repository-structure-with-setup-scripts-for-ollama-ai-agents-and-cloudflare-access-sso-configurat"
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
   },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Start Here",
+        "pages": [
+          "index",
+          "identity/overview"
+        ]
+      },
+      {
+        "group": "Developer Identity",
+        "pages": [
+          "identity/google-developer",
+          "credentials/developer-memberships"
+        ]
+      },
+      {
+        "group": "Research & Media",
+        "pages": [
+          "research/orcid",
+          "media/entrepreneur",
+          "media/coverage"
+        ]
+      },
+      {
+        "group": "Projects",
+        "pages": [
+          "projects/overview"
+        ]
+      },
+      {
+        "group": "Resource Directory",
+        "pages": [
+          "directory/all-links",
+          "directory/social"
+        ]
+      },
+      {
+        "group": "Indexing & Trust",
+        "pages": [
+          "discovery/sitemaps",
+          "discovery/verification"
+        ]
+      },
+      {
+        "group": "Archive",
+        "pages": [
+          "shivansh-os-concept",
+          "untitled-page",
+          "quickstart",
+          "git-hub-repository-setup-ollama-and-ai-agents-cloudflare-access-and-sso-heres-the-complete-initial-repository-structure-with-setup-scripts-for-ollama-ai-agents-and-cloudflare-access-sso-configurat"
+        ]
+      }
+    ]
+  },
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Portfolio",
+        "href": "https://shivanshsethi.in"
+      },
+      {
+        "label": "ShivanshOS",
+        "href": "https://os.shivanshsethi.in"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "All Links",
+      "href": "/directory/all-links"
+    }
+  },
+  "footer": {
+    "socials": {
+      "website": "https://shivanshsethi.in",
+      "github": "https://github.com/shivanshos",
+      "linkedin": "https://www.linkedin.com/in/shivanshsethi",
+      "x": "https://x.com/ShivanshSethi13"
     }
   },
   "contextual": {
@@ -52,18 +98,13 @@
       "copy",
       "view",
       "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
+      "claude"
     ]
   },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/shivanshsethi13",
-      "linkedin": "https://linkedin.com/company/mintlify",
-      "website": "https://shivanshsethi.in/"
-    }
+  "seo": {
+    "indexing": "navigable"
+  },
+  "metadata": {
+    "timestamp": true
   }
 }

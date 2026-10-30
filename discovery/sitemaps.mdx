@@ -1,0 +1,28 @@
+---
+title: "SEO, canonical URLs and XML sitemap rules"
+description: "Implementation rules for indexing Mintlify documentation, identity links and distinct public domains."
+keywords: ["sitemap.xml", "robots.txt", "SEO"]
+---
+
+# Sitemap and discovery specification
+
+## Three separate concerns
+
+1. **This Mintlify site:** Automatically generated XML sitemap of published, indexable, canonical documentation routes. Expected address after the domain is live: `https://docs.shivanshsethi.in/sitemap.xml`.
+2. **Existing portfolio:** Maintain its independent sitemap on `shivanshsethi.in`; do not include proposed pages before deployment.
+3. **ShivanshOS gateway:** Maintain its own sitemap if pages are anonymous and indexable; exclude the authenticated studio entirely.
+
+## External resource registry is not an XML sitemap
+
+Google Developer, ORCID, Entrepreneur, AWS, NVIDIA, YouTube and social URLs are **outbound references**. Link them on relevant documentation pages and use appropriately verified `sameAs` properties on a canonical person profile when that structured data is deployed. Do not place them as `<loc>` elements in this site's normal sitemap.
+
+## Domain go-live checks
+
+- Dedicated Mintlify deployment connected to [shivanshos/docs](https://github.com/shivanshos/docs), not the unrelated AIO3 deployment.
+- `docs.shivanshsethi.in` added and verified in Mintlify Domain Setup, with the exact DNS target returned by the dashboard.
+- Public indexing enabled. A separate existing AIO3 site has `noindex` enabled and should not be changed during this migration.
+- Each canonical page returns HTTP 200 anonymously, navigation resolves and no private endpoints are exposed.
+- Submit `https://docs.shivanshsethi.in/sitemap.xml` to Google Search Console after it is live.
+- Validate canonical tags, Google Search URL Inspection and HTTPS certificate.
+
+[Google's official XML sitemap documentation](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap) | [Google profile-page structured data](https://developers.google.com/search/docs/appearance/structured-data/profile-page)

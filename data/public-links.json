@@ -1,0 +1,246 @@
+{
+  "schemaVersion": "1.0",
+  "lastReviewed": "2026-10-30",
+  "personId": "person:shivansh-sethi",
+  "notes": "Public links only. URL status is not proof of account ownership. No private email addresses.",
+  "resources": [
+    {
+      "label": "Portfolio",
+      "category": "Website",
+      "url": "https://shivanshsethi.in",
+      "status": "Published",
+      "note": "Primary personal site"
+    },
+    {
+      "label": "Existing articles",
+      "category": "Writing",
+      "url": "https://shivanshsethi.in/articles",
+      "status": "User supplied",
+      "note": "Original writing index"
+    },
+    {
+      "label": "ShivanshOS gateway",
+      "category": "Project",
+      "url": "https://os.shivanshsethi.in",
+      "status": "User supplied",
+      "note": "Public gateway; status not independently verified"
+    },
+    {
+      "label": "Private studio",
+      "category": "Private",
+      "url": "https://os.studio.shivanshsethi.in",
+      "status": "Do not index",
+      "note": "Authentication required"
+    },
+    {
+      "label": "Aiotize",
+      "category": "Project",
+      "url": "https://aiotize.com",
+      "status": "User supplied",
+      "note": "Venture homepage"
+    },
+    {
+      "label": "AIO3",
+      "category": "Project",
+      "url": "https://aio3.ai",
+      "status": "User supplied",
+      "note": "Educational initiative domain"
+    },
+    {
+      "label": "Entrepreneur Middle East feature",
+      "category": "Press",
+      "url": "https://mena.entrepreneur.com/starting-a-business/meet-the-finalists-of-dubai-startup-hubs-smartpreneur/411597",
+      "status": "Publisher verified",
+      "note": "Jan 6, 2022; editorial feature about Aiotize"
+    },
+    {
+      "label": "ORCID",
+      "category": "Research",
+      "url": "https://orcid.org/0009-0009-7581-2226",
+      "status": "Registration evidence",
+      "note": "Record visibility and works require review"
+    },
+    {
+      "label": "Google Developer: ShivanshOS",
+      "category": "Developer",
+      "url": "https://g.dev/shivanshos",
+      "status": "User supplied",
+      "note": "Account ownership mapping pending"
+    },
+    {
+      "label": "Google developer profile (previous)",
+      "category": "Developer",
+      "url": "https://g.dev/shivanshsethi",
+      "status": "User supplied",
+      "note": "Same URL, deduplicated"
+    },
+    {
+      "label": "Google Developer: numeric profile",
+      "category": "Developer",
+      "url": "https://me.developers.google.com/u/101102495489247429774",
+      "status": "User supplied",
+      "note": "May require sign-in; verify public access"
+    },
+    {
+      "label": "AWS Builder Center",
+      "category": "Developer",
+      "url": "https://builder.aws.com",
+      "status": "Platform only",
+      "note": "Personal public profile URL not verified"
+    },
+    {
+      "label": "NVIDIA Developer",
+      "category": "Developer",
+      "url": "https://developer.nvidia.com",
+      "status": "Platform only",
+      "note": "Do not imply earned badges"
+    },
+    {
+      "label": "GitHub: organization",
+      "category": "Developer",
+      "url": "https://github.com/shivanshos",
+      "status": "User supplied",
+      "note": "Development repositories"
+    },
+    {
+      "label": "GitHub: S-Sethi8",
+      "category": "Developer",
+      "url": "https://github.com/S-Sethi8",
+      "status": "User supplied",
+      "note": "Additional profile"
+    },
+    {
+      "label": "LinkedIn",
+      "category": "Professional",
+      "url": "https://www.linkedin.com/in/shivanshsethi",
+      "status": "User supplied",
+      "note": "Career and memberships"
+    },
+    {
+      "label": "Linktree: ShivanshOS",
+      "category": "Directory",
+      "url": "https://linktr.ee/shivanshos",
+      "status": "User supplied",
+      "note": "Existing external link hub"
+    },
+    {
+      "label": "Linktree: S. Sethi",
+      "category": "Directory",
+      "url": "https://linktr.ee/S.Sethi",
+      "status": "User supplied",
+      "note": "Alternate external link hub"
+    },
+    {
+      "label": "Instagram",
+      "category": "Social",
+      "url": "https://www.instagram.com/shivansh.sethi",
+      "status": "User supplied",
+      "note": "Follower eligibility unverified"
+    },
+    {
+      "label": "Facebook",
+      "category": "Social",
+      "url": "https://www.facebook.com/share/1B9evCi1gJ/",
+      "status": "User supplied",
+      "note": "10k+ followers self-reported; not Google Search profile qualifying platform"
+    },
+    {
+      "label": "X",
+      "category": "Social",
+      "url": "https://x.com/ShivanshSethi13",
+      "status": "User supplied",
+      "note": "Google Search profile qualifying platform if >=10k"
+    },
+    {
+      "label": "Snapchat",
+      "category": "Social",
+      "url": "https://snapchat.com/t/felYlfWi",
+      "status": "User supplied",
+      "note": "Shared profile link"
+    },
+    {
+      "label": "WhatsApp",
+      "category": "Contact",
+      "url": "https://wa.me/919763000088",
+      "status": "User supplied",
+      "note": "Public business/contact link"
+    },
+    {
+      "label": "Calendly",
+      "category": "Contact",
+      "url": "https://calendly.com/aiotize",
+      "status": "User supplied",
+      "note": "Scheduling"
+    },
+    {
+      "label": "Discord invite",
+      "category": "Community",
+      "url": "https://discord.com/invite/shivanshaiotize",
+      "status": "User supplied",
+      "note": "Invite may expire"
+    },
+    {
+      "label": "Substack",
+      "category": "Writing",
+      "url": "https://substack.com/@shivanshsethi",
+      "status": "User supplied",
+      "note": "Publication profile"
+    },
+    {
+      "label": "Messenger channel",
+      "category": "Social",
+      "url": "https://www.messenger.com/channel/shivanshaio",
+      "status": "User supplied",
+      "note": "Channel"
+    },
+    {
+      "label": "Mastodon",
+      "category": "Social",
+      "url": "https://mastodon.social/@ssethi",
+      "status": "Inferred URL",
+      "note": "Verify destination from @ssethi@mastodon.social"
+    },
+    {
+      "label": "Farcaster",
+      "category": "Social",
+      "url": "https://farcaster.xyz/aiotize-inc",
+      "status": "User supplied",
+      "note": "Company account"
+    },
+    {
+      "label": "Inkonzerion NFT project",
+      "category": "Project",
+      "url": "https://inkonzerion-nft-winner-2-3.nfts2.me",
+      "status": "User supplied",
+      "note": "Verify destination"
+    },
+    {
+      "label": "Startup Luxembourg directory",
+      "category": "Media",
+      "url": "https://directory.startupluxembourg.com/companies/shivansh_sethi_1",
+      "status": "Earlier discovery",
+      "note": "Verify page current"
+    },
+    {
+      "label": "Google Search profile eligibility",
+      "category": "External platform",
+      "url": "https://creators.google/profile",
+      "status": "Official",
+      "note": "Requires 10k on Instagram, YouTube, TikTok or X"
+    },
+    {
+      "label": "Google Search profile claim",
+      "category": "External platform",
+      "url": "https://profile.google.com/claim",
+      "status": "Official",
+      "note": "Public Google profile not yet claimed"
+    },
+    {
+      "label": "AIO3 documentation",
+      "category": "Project docs",
+      "url": "https://docs.aio3.ai",
+      "status": "Existing separate deployment",
+      "note": "Do not mix with personal directory"
+    }
+  ]
+}
