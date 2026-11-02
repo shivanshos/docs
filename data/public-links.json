@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "lastReviewed": "2026-10-30",
+  "lastReviewed": "2026-11-02",
   "personId": "person:shivansh-sethi",
   "notes": "Public links only. URL status is not proof of account ownership. No private email addresses.",
   "resources": [
@@ -241,6 +241,27 @@
       "url": "https://docs.aio3.ai",
       "status": "Existing separate deployment",
       "note": "Do not mix with personal directory"
+    },
+    {
+      "label": "Gravity Alpha wallet explorer",
+      "category": "Web3",
+      "url": "https://explorer.gravity.xyz/address/0x4fd036ece52c4b0746da71ecf8be38c94d435164?tab=index",
+      "status": "Owner-declared; signature pending",
+      "note": "Historical chain 1625. Network deprecation occurred after November 1, 2026. No wallet activity or balances validated."
+    },
+    {
+      "label": "Gravity L1 address lookup",
+      "category": "Web3",
+      "url": "https://mainnet-explorer.gravity.xyz/address/0x4fd036ece52c4b0746da71ecf8be38c94d435164",
+      "status": "Derived lookup; activity unverified",
+      "note": "New Gravity L1 chain 127001, same address format; on-chain presence not confirmed."
+    },
+    {
+      "label": "Galxe account settings",
+      "category": "Web3 platform",
+      "url": "https://app.galxe.com/accountSetting/wallet",
+      "status": "Official platform only",
+      "note": "Not a verified public Galxe ID profile. Personal profile URL pending."
     }
   ]
 }
