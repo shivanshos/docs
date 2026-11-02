@@ -44,6 +44,15 @@
         ]
       },
       {
+        "group": "Web3 Identity",
+        "pages": [
+          "web3/identity",
+          "web3/credentials",
+          "web3/activity",
+          "web3/verification"
+        ]
+      },
+      {
         "group": "Resource Directory",
         "pages": [
           "directory/all-links",
