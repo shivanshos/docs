@@ -1,0 +1,21 @@
+---
+title: "Web3 wallet ownership verification"
+description: "Safe cryptographic proof process and evidence standards for the public Gravity wallet."
+keywords: ["wallet ownership","signature proof","EVM"]
+---
+
+# Verify Web3 wallet ownership
+
+Current status: **owner-declared, cryptographic verification pending**.
+
+To verify control of the public address `0x4fd036ece52c4b0746da71ecf8be38c94d435164`, use a trusted verifier and sign a human-readable, one-time message. A proper challenge identifies the intended domain and purpose, includes an unpredictable nonce, has an issue time and expires quickly. The signature must be checked against the exact wallet address.
+
+- EVM externally owned accounts may use an EIP-191 message signature.
+- Contract accounts may require EIP-1271 signature validation.
+- A signed message should **not** request an on-chain transfer or token approval.
+
+Do not share a private key, seed phrase, recovery code, login token, or wallet backup.
+
+Once the signature has been independently validated, record the time, verifier and public proof in the registry. Until then, keep the status as owner-declared, not verified.
+
+[Wallet identity](/web3/identity) | [General evidence policy](/discovery/verification)
