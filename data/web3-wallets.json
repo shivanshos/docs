@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "updatedAt": "2026-11-02",
+  "personId": "person:shivansh-sethi",
+  "wallets": [
+    {
+      "address": "0x4fd036ece52c4b0746da71ecf8be38c94d435164",
+      "format": "EVM",
+      "publicAssociationApproved": true,
+      "ownershipStatus": "owner-declared",
+      "signatureVerification": "pending",
+      "historicalNetwork": {
+        "name": "Gravity Alpha Mainnet",
+        "chainId": 1625,
+        "deprecation": "November 1, 2026",
+        "explorerUrl": "https://explorer.gravity.xyz/address/0x4fd036ece52c4b0746da71ecf8be38c94d435164?tab=index"
+      },
+      "currentNetworkReference": {
+        "name": "Gravity L1 Mainnet",
+        "chainId": 127001,
+        "explorerUrl": "https://mainnet-explorer.gravity.xyz/address/0x4fd036ece52c4b0746da71ecf8be38c94d435164",
+        "activityVerified": false
+      },
+      "galxeProfileUrl": null,
+      "verifiedCredentials": [],
+      "verifiedTransactions": [],
+      "notes": "Owner-approved public reference. Cryptographic ownership and on-chain asset/activity data are not independently verified."
+    }
+  ]
+}
